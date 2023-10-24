@@ -1,0 +1,114 @@
+appVersion: "5.8.2"
+platform:
+  image: leitosama/opencti-platform
+  ingressHost: "cti.leito.tech"
+  nodeOptions: "--max-old-space-size=8096"
+  port: 8080
+  logLevel: "debug"
+  providersLocalStrategy: "LocalStrategy"
+  replicaCount: 1
+  auth:
+    defaultAdmin: "no-reply@leito.tech"
+    existingSecret: opencti-secrets
+  minio:
+    endpoint: "test"
+    port: 443
+    bucket: "opencti-test"
+    tls: true
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "125m"
+    limits:
+      memory: "2Gi"
+      cpu: "250m"      
+worker: 
+  image: opencti/worker
+  logLevel: "info"
+  replicaCount: 1
+  enabled: true
+pullPolicy: Always
+
+
+
+opensearch:
+  enabled: true
+  # It's fake auth config. TODO: rewrite to real one
+  auth:
+    existingSecret: opensearch-secrets
+  # opensearchJavaOpts: -Xms4G -Xmx4G
+  singleNode: true
+  securityConfig:
+    enabled: false
+  # Configure pvc later
+  persistence:
+    enabled: false
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "125m"
+    limits:
+      memory: "2Gi"
+      cpu: "250m"
+
+minio:
+  enabled: false
+  auth:
+    rootUser: "root-user"
+    rootPassword: "root-password"
+    existingSecret: minio-secrets
+
+
+rabbitmq:
+  image:
+    debug: true
+  enabled: true
+  persistence:
+    enabled: true
+    size: 1Gi
+  # TODO: all probes should be enabled
+  livenessProbe:
+    enabled: false
+  readinessProbe:
+    enabled: false
+  containerSecurityContext:
+    enabled: false
+  podSecurityContext:
+    enabled: false
+  clustering:
+    enabled: false
+  serviceAccount:
+    enabled: false
+  auth:
+    tls:
+      enabled: false
+    username: "opencti"
+    existingPasswordSecret: rabbitmq-secrets
+    password: "password"
+  rbac:
+    create: false
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "125m"
+    limits:
+      memory: "512Mi"
+      cpu: "250m"
+
+
+redis:
+  auth:
+    enabled: false
+  architecture: standalone
+  master:
+    persistence:
+      size: 2Gi
+      sizeLimit: 128Mi
+  resources:
+    requests:
+      memory: "64Mi"
+      cpu: "125m"
+    limits:
+      memory: "128Mi"
+      cpu: "250m"
+
